@@ -34,6 +34,7 @@ else
   echo "    OMITIDO por SKIP_NOTEBOOK=1"
 fi
 REPO_URL="${REPO_URL:-https://github.com/edvvdev/unidad04-07}" \
+  uv run python scripts/make_figures.py
   uv run python scripts/build_ejercicio07_pdf.py
 
 echo "Listo. Revisa 'git status' y completa los campos PENDIENTE del PDF (nombre y matrícula)."

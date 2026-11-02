@@ -35,6 +35,14 @@ def negritas(texto: str) -> str:
     return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", texto)
 
 
+
+def imagen_segura(ruta, ancho_cm, alto_cm):
+    """Añade la imagen si existe; si no, una nota para que no se rompa la generación del PDF."""
+    if Path(ruta).exists():
+        return Image(str(ruta), width=ancho_cm * cm, height=alto_cm * cm)
+    return Paragraph(f"[Figura no generada: {Path(ruta).name}. Se produce con scripts/make_figures.py]",
+                      styles["Small"])
+
 styles = getSampleStyleSheet()
 styles.add(ParagraphStyle(name="Title2", parent=styles["Title"], fontSize=17, spaceAfter=6))
 styles.add(ParagraphStyle(name="H1s", parent=styles["Heading1"], fontSize=12, spaceBefore=9, spaceAfter=3))
@@ -120,7 +128,7 @@ tabla_riesgos.setStyle(TableStyle([
 ]))
 story.append(tabla_riesgos)
 story.append(Spacer(1, 4))
-story.append(Image(str(REPORTS / "lab11/riesgos_priorizados.png"), width=13.5 * cm, height=6.9 * cm))
+story.append(imagen_segura(REPORTS / "lab11/riesgos_priorizados.png", 13.5, 6.9))
 story.append(PageBreak())
 
 story.append(Paragraph("3. Auditoría global, por grupo e interseccional", styles["H1s"]))
@@ -151,7 +159,7 @@ story.append(Paragraph(
     "63,9 %). La diferencia de recall refleja en parte esa prevalencia distinta, no una decisión "
     "discriminatoria demostrada: el atributo sensible no entra al modelo.", styles["Small"]))
 story.append(Spacer(1, 4))
-story.append(Image(str(REPORTS / "lab12/metricas_por_grupo.png"), width=15.5 * cm, height=5.7 * cm))
+story.append(imagen_segura(REPORTS / "lab12/metricas_por_grupo.png", 15.5, 5.7))
 story.append(Spacer(1, 4))
 
 story.append(Paragraph("Celdas interseccionales (grupo | banda de edad, modelo logística)", styles["Small"]))
@@ -174,7 +182,7 @@ tabla_inter.setStyle(TableStyle([
 ]))
 story.append(tabla_inter)
 story.append(Spacer(1, 4))
-story.append(Image(str(REPORTS / "lab12/recall_interseccional.png"), width=15.5 * cm, height=7.75 * cm))
+story.append(imagen_segura(REPORTS / "lab12/recall_interseccional.png", 15.5, 7.75))
 story.append(PageBreak())
 
 story.append(Paragraph("4. Mitigación, trade-offs y decisión", styles["H1s"]))
@@ -200,7 +208,7 @@ tabla_alt.setStyle(TableStyle([
 ]))
 story.append(tabla_alt)
 story.append(Spacer(1, 4))
-story.append(Image(str(REPORTS / "lab12/utilidad_vs_brecha.png"), width=13.5 * cm, height=7.3 * cm))
+story.append(imagen_segura(REPORTS / "lab12/utilidad_vs_brecha.png", 13.5, 7.3))
 story.append(Spacer(1, 4))
 story.append(Paragraph(
     "El árbol alcanza la <b>misma utilidad global</b> (recall 0,7174) con <b>brechas mayores</b> "
