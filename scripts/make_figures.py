@@ -156,8 +156,8 @@ def main() -> None:
         try:
             funcion()
             print("OK   ", nombre)
-        except FileNotFoundError as error:
-            print("FALTA", nombre, "->", error)
+        except Exception as error:  # la figura depende de artefactos que pueden no existir
+            print("FALTA", nombre, "->", type(error).__name__, error)
 
 
 if __name__ == "__main__":
