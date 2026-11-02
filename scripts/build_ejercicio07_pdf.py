@@ -48,7 +48,7 @@ story.append(Paragraph(
 story.append(Spacer(1, 5))
 
 identificacion = [
-        ["Estudiante", "Edwing Perez · matrícula: PENDIENTE"],
+        ["Estudiante", "Edwing Perez"],
         ["Profesor", "Edwin Ramón José Nolasco"],
     ["Repositorio", REPO_URL],
     ["Caso", "Riesgo territorial SINTÉTICO (640 registros) · no representa personas ni estadísticas reales de RD"],
