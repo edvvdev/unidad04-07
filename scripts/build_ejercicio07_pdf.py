@@ -48,9 +48,8 @@ story.append(Paragraph(
 story.append(Spacer(1, 5))
 
 identificacion = [
-    ["Estudiante", "PENDIENTE: nombre completo y matrícula"],
-    ["Correo institucional", "PENDIENTE: ID+USUARIO@users.noreply.github.com"],
-    ["Profesor", "Edwin Ramón José Nolasco"],
+        ["Estudiante", "Edwing Perez · matrícula: PENDIENTE"],
+        ["Profesor", "Edwin Ramón José Nolasco"],
     ["Repositorio", REPO_URL],
     ["Caso", "Riesgo territorial SINTÉTICO (640 registros) · no representa personas ni estadísticas reales de RD"],
     ["Decisión", "LIMITAR · piloto en modo REVIEW con puerta de equidad trimestral y condiciones de retiro"],
