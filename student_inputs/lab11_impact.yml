@@ -1,0 +1,33 @@
+purpose: 'Priorizar la revisión humana de casos con señal de riesgo territorial para orientar el esfuerzo
+  de prevención (verificación en campo y acompañamiento). El sistema no decide: ordena la cola de revisión
+  y aporta evidencia. El caso de negocio es didactic and synthetic: el dataset incluido es un caso territorial
+  sintético que no representa personas, territorios ni estadísticas reales de República Dominicana.'
+assisted_decision: El DSS calcula una probabilidad de incidente y un orden de prioridad. La persona responsable
+  de la jornada revisa la lista, puede abrir, posponer o descartar cada caso, y deja registro de la decisión.
+  Ninguna acción sobre personas o comunidades se ejecuta de forma automática.
+users: Analistas de riesgo (revisan la cola priorizada cada jornada); coordinadores de operación (asignan
+  la capacidad de verificación); responsables de programa (autorizan la continuidad y responden por el
+  sistema).
+affected_population: 'Personas y comunidades residentes en las zonas donde opera el programa: son ellas
+  quienes reciben la acción de verificación y las que soportan el riesgo de un falso positivo o de un
+  falso negativo. Al ser un caso sintético, la población real es hipotética y no se puede afirmar nada
+  sobre grupos poblacionales concretos.'
+owner: Dirección del programa de prevención (rol accountable único). El equipo de datos mantiene el modelo
+  pero no aprueba su uso operativo; la aprobación y el retiro son de la dirección.
+non_predictive_alternative: Reparto rotativo por zona y severidad reportada, priorización manual de todas
+  las alertas recibidas, o inversión en infraestructura y tiempo comunitario priorizado por criterios
+  publicados y no por un modelo. Estas alternativas no usan datos individuales y por tanto evitan la exposición
+  a datos sensibles.
+out_of_scope_use: 'Prohibido usar el modelo o su ranking para: decidir sanciones, sanciones administrativas
+  o prohibiciones de cualquier tipo; abrir expedientes o imputar responsabilidades; distribuir fondos
+  o recursos entre zonas según el ranking de riesgo; autorizar identificaciones, registros o vigilancia; puntuar
+  a personas; y usar datos de la cola para entrenar otros sistemas.'
+withdrawal_condition: 'El sistema se retira o se detiene si ocurre cualquiera de estas condiciones: (1)
+  la brecha de recall entre grupos supera la tolerancia acordada en la auditoria del LAB12; (2) una puerta
+  de gobernanza falla y no se resuelve en unarevision; (3) el caso deja de ser sintético y documentado,
+  o entra un conjunto de datos que no cumple el contrato; (4) no se puede mantener la revision humana
+  con la capacidad operativa disponible; (5) se detecta un uso fuera del alcance aprobado.'
+appeal_mechanism: 'Recurso de apelacion: cualquier persona agraviada por una decision puede solicitar
+  la revision humana del caso y del ranking que lo produjo. La peticion se registra en el registro de
+  apelaciones, se responde en un plazo definido por el responsable y su resultado se usa como evidencia
+  de control en el registro de riesgos y en el runbook.'
