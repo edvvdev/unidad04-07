@@ -8,3 +8,6 @@ models/*.joblib
 reports/**/*.png
 !reports/**/*.png
 .streamlit/secrets.toml
+
+# El postmortem del simulacro se regenera en cada ejecucion (lleva marca de tiempo)
+reports/lab13/INCIDENT_POSTMORTEM.md

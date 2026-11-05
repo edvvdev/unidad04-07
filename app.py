@@ -1,7 +1,9 @@
 import streamlit as st
+
 from inf8239_u04.data import load_data
 from inf8239_u04.governance import load_config
 from inf8239_u04.pipeline import run
+
 st.set_page_config(page_title="Governed Green DSS",layout="wide")
 st.title("DSS territorial sintético · Gobernanza y Green AI")
 st.warning("Demostración educativa con datos sintéticos. No autoriza decisiones automáticas ni representa estadísticas reales.")

@@ -1,5 +1,3 @@
-import pandas as pd
-
 REQUIRED_IMPACT={"purpose","assisted_decision","users","affected_population","owner","non_predictive_alternative","out_of_scope_use","withdrawal_condition","appeal_mechanism"}
 REQUIRED_RISK={"id","scenario","affected","likelihood_1_4","impact_1_4","control","owner","evidence","residual"}
 

@@ -1,7 +1,11 @@
 import json
 from pathlib import Path
-import pandas as pd, yaml
-from inf8239_u04.impact import validate_impact, score_risks
+
+import pandas as pd
+import yaml
+
+from inf8239_u04.impact import score_risks, validate_impact
+
 out=Path("reports/lab11"); out.mkdir(parents=True,exist_ok=True)
 impact=yaml.safe_load(Path("student_inputs/lab11_impact.yml").read_text(encoding="utf-8")); validate_impact(impact)
 stake=pd.read_csv("student_inputs/stakeholders.csv")
