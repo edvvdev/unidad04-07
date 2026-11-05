@@ -1,6 +1,6 @@
 # Declaración de uso de IA · Unidad 04 (LAB11–LAB12 · Ejercicio 07)
 
-Proyecto: `INF8239_U04_Gobernanza_DSS` · Fecha: 2026-11-02
+Proyecto: `INF8239_U04_Gobernanza_DSS` · Fecha: 2026-11-02 · Revisión de coherencia: 2026-11-05
 
 ## Herramienta
 
@@ -14,14 +14,15 @@ es el caso sintético que acompaña al proyecto base.
 | Uso | Detalle |
 |---|---|
 | Estructura | Traducir la rúbrica del Ejercicio 07 en artefactos editables: ficha de impacto, registro de riesgos, tabla de interesados, decisión de equidad y expediente |
-| Código | Corrección de dos scripts del proyecto base que **no compilaban** (ver «Correcciones») y una modificación menor para no sobrescribir el registro de decisión del estudiante |
-| Redacción | Estructura de los documentos (Dataset Card, registro de decisión, esta declaración) |
-| Verificación | Comprobación de que las cifras de los informes coinciden con los CSV/JSON generados por los scripts del profesor |
+| Código | Corrección de dos scripts del proyecto base que **no compilaban** (ver «Correcciones»), una modificación menor para no sobrescribir el registro de decisión del estudiante y, en la revisión de 2026-11-05, la extensión aditiva de las puertas de gobernanza (`governance.py`, `pipeline.py`, `fairness.py`) y de los scripts que generan la evidencia |
+| Redacción | Estructura de los documentos (Dataset Card, registro de decisión, esta declaración) y unificación del lenguaje de la decisión entre README, registro de decisión, YAML y PDF |
+| Verificación | Comprobación de que las cifras de los informes coinciden con los CSV/JSON generados por los scripts del profesor (contraste ejecutado; ver «Verificaciones ejecutadas») |
 
 **Lo que la IA no hizo (y no puede hacer por mandato):** los **valores del análisis** —finalidad,
 interesados, probabilidad e impacto de cada riesgo, tolerancia de brecha, métrica principal y
 recomendación— los decidió el estudiante con la evidencia del manual y de las ejecuciones; y ninguna
-referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/` y `reports/lab12/`.
+referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`, `reports/lab12/` y
+`reports/lab13/`.
 
 ## Prompts relevantes
 
@@ -38,18 +39,39 @@ referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`
    juicio profesional.»
 5. «No inventes evidencia: toda cifra debe salir de un archivo de `reports/` y toda referencia debe
    poder verificarse.»
+6. «La decisión es incoherente en cuatro artefactos: unifica el lenguaje de la decisión, del estado del
+   pipeline y del escalamiento, con la misma redacción en todos ellos.»
+7. «Las cifras del PDF y del informe están desfasadas respecto de los datos: calcúlalas desde el
+   dataset en lugar de mantener literales, y marca las celdas con soporte insuficiente por código.»
 
-## Verificaciones que el estudiante debe repetir
+## Verificaciones ejecutadas (2026-11-05, con el resultado real)
 
-- [ ] `uv sync --frozen` y `uv run pytest -q` → 10 passed.
-- [ ] `uv run python scripts/check_environment.py` → `dataset_status: valid`, 640 filas.
-- [ ] `uv run python scripts/lab11_impact.py` → `reports/lab11/risk_register_scored.csv` con 9 riesgos
-      y `rmf_summary.json`.
-- [ ] `uv run python scripts/lab12_audit.py --model logistic` y `--model tree` → métricas globales,
-      por grupo e interseccionales.
-- [ ] `uv run python scripts/validate_lab12_decision.py` → `decision_status: documented`.
-- [ ] `uv run pytest -q tests/test_impact.py tests/test_privacy.py tests/test_fairness.py tests/test_model.py`.
-- [ ] Revisar que las cifras del registro de decisión coinciden con los CSV y JSON.
+- [x] `uv sync --frozen` → `Checked 54 packages` (entorno reproducible con el lock del base).
+- [x] `uv run pytest -q` → **17 passed**.
+- [x] `uv run ruff check .` → **All checks passed!**
+- [x] `uv run python scripts/check_environment.py` → `{'python_project': 'ok', 'dataset_status': 'valid', 'rows': 640, 'columns': 9}`.
+- [x] `uv run python scripts/lab11_impact.py` → `reports/lab11/risk_register_scored.csv` con 9 riesgos
+      (prioridades 9, 8, 8, 8, 6, 6, 6, 4, 4) y `rmf_summary.json`.
+- [x] `uv run python scripts/lab12_audit.py --model logistic` y `--model tree` → métricas globales,
+      por grupo e interseccionales; `fairness_intersectional.csv` con la columna `soporte_insuficiente`
+      calculada por el propio script (umbral 15: 3 celdas marcadas, n=8, n=11 y n=14).
+- [x] `uv run python scripts/validate_lab12_decision.py` → `decision_status: documented`.
+- [x] `uv run python scripts/lab13_governance.py` → `{'status': 'REVIEW', …, 'failed':
+      ['worst_group_recall', 'recall_gap_pilot', 'intersectional_support'], 'escalation_triggered': []}`
+      y `reports/lab13/deployment_decision.json` versionado.
+- [x] `uv run python scripts/make_figures.py` → 7 figuras `OK` (incluye
+      `reports/lab13/puertas_calidad.png`).
+- [x] `uv run pytest -q tests/test_impact.py tests/test_privacy.py tests/test_fairness.py tests/test_model.py`
+      → **7 passed**.
+- [x] `bash scripts/run_all.sh` → flujo completo sin errores (entorno → pruebas → LAB11 → LAB12 →
+      LAB13 → incidente → notebook → figuras → PDF).
+- [x] Contraste de cifras entre el informe y los CSV/JSON: recall 0,7174, brecha de recall 0,1376,
+      FPR 0,1250, recall del peor grupo 0,6531 (G1), soporte interseccional mínimo 8 y tasas base de
+      positivos 48,5 % / 72,9 % (prueba) y 49,7 % / 63,9 % (datos completos) coinciden con
+      `reports/lab12/*` y `reports/lab13/deployment_decision.json`.
+- [x] `pdftotext -layout docs/EJERCICIO_07_PDF_SINTESIS.pdf -` → contiene «Edwing Perez», la URL del
+      repositorio, «LIMITAR», «REVIEW», «STOP» y las tasas 48,5 % / 72,9 % / 49,7 % / 63,9 %; no
+      contiene «23,9 %» ni «49,6 %».
 
 ## Correcciones realizadas
 
@@ -57,10 +79,21 @@ referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`
 |---|---|---|
 | `scripts/lab11_impact.py` no compilaba (`SyntaxError: unterminated string literal`) | El ZIP del profesor trae saltos de línea reales dentro de literales de cadena | El script se ejecuta y genera `reports/lab11/` |
 | `scripts/simulate_incident.py` no compilaba (`SyntaxError: unterminated f-string literal`) | Misma causa en el archivo de texto del simulacro | Se reescribió la construcción del texto con `\n` escapados |
-| El script de LAB11 ya no sobrescribe `DECISION_RECORD.md` si el estudiante ya lo redactó | El base lo regeneraba con el texto `REPLACE` en cada ejecución y borraba el trabajo del estudiante | Al reejecutar el script, el registro se conserva |
+| El script de LAB11 ya no sobrescribe `DECISION_RECORD.md` si el estudiante ya lo redactó | El base lo regeneraba con la plantilla de marcadores sin resolver en cada ejecución y borraba el trabajo del estudiante | Al reejecutar el script, el registro se conserva |
+| La decisión decía cuatro cosas distintas (LIMITAR, REVIEW, STOP y GO) | Las puertas del LAB12 no existían en `configs/governance.yml`, así que el evaluador devolvía GO mientras la documentación afirmaba lo contrario | `configs/governance.yml` declara las tres puertas y los dos umbrales de escalamiento; `deployment_decision` los evalúa y devuelve REVIEW con las tres puertas fallidas |
+| `reports/lab13/deployment_decision.json` no existía aunque el riesgo R07 lo cita como evidencia | El flujo no ejecutaba `scripts/lab13_governance.py` | `scripts/run_all.sh` lo ejecuta y el JSON queda versionado |
+| El PDF afirmaba «G1 23,9 %» y «datos completos: 49,6 %» | Literales escritos a mano, desfasados respecto de los datos | Las tasas se calculan desde `data/territorial_risk_synthetic.csv` con el corte temporal del repo: 48,5 % / 72,9 % en la prueba y 49,7 % / 63,9 % en los datos completos |
+| Las celdas con soporte insuficiente se contaban de dos formas (2 frente a 3) | El soporte se marcaba a mano en el PDF y sin marca en los CSV | `fairness_intersectional.csv` lleva la columna `soporte_insuficiente` calculada por código (umbral 15) y todos los artefactos cuentan 3 celdas (n=8, n=11 y n=14) |
+| Dos tablas del PDF (interesados y riesgos) se solapaban | Celdas de texto plano sin ajuste de línea en columnas estrechas | Las tablas se reconstruyen con párrafos con `wordWrap` y anchos de columna; la página 1 renderizada a PNG no muestra solapamiento |
+| `docs/MODEL_CARD.md` y `docs/RUNBOOK.md` con marcadores sin resolver | Son las plantillas del LAB13 (Ejercicio 08) que trae el base y no aplican aquí | Cada una empieza con una línea que lo dice; el contenido no se inventa |
+| `uv run ruff check .` señalaba 29 hallazgos heredados | El base no fijó `[tool.ruff]` en `pyproject.toml` (que no se toca) | Hallazgos corregidos en el código (orden de imports, imports sin uso, expresión inútil del notebook, `except` ciego) |
 
-No se modificaron `pyproject.toml` ni `uv.lock` del proyecto base, ni la lógica de `data.py`,
-`impact.py`, `fairness.py`, `model.py` o `governance.py`.
+No se modificaron `pyproject.toml` ni `uv.lock` del proyecto base. Se modificaron
+`src/inf8239_u04/governance.py` (puertas del LAB12 y estado STOP, de forma aditiva: con los umbrales
+base el resultado no cambia), `src/inf8239_u04/pipeline.py` (recall del peor grupo, peor grupo y
+soporte interseccional mínimo) y `src/inf8239_u04/fairness.py` (marca de soporte insuficiente); en
+`src/inf8239_u04/impact.py` solo se eliminó un `import pandas` sin uso. La lógica de `data.py` y
+`model.py` no se tocó.
 
 ## Referencias utilizadas (verificables)
 
@@ -75,7 +108,11 @@ No se modificaron `pyproject.toml` ni `uv.lock` del proyecto base, ni la lógica
 
 - Las cifras provienen de ejecuciones en esta máquina y deben reejecutarse en el entorno de entrega.
 - La auditoría usa **una sola partición temporal y una sola semilla**, sin intervalos de confianza: las
-  brechas son(point estimates) y deben leerse con esa incertidumbre.
+  brechas son estimaciones puntuales y deben leerse con esa incertidumbre.
 - El caso es sintético: ninguna conclusión describe poblaciones, zonas o personas reales.
-- La interpretación normativa (qué obligations aplican y quién responde) es del estudiante y debe
-  poder defenderse sin el apoyo de esta herramienta.
+- La interpretación normativa (qué obligaciones aplican y quién responde) es del estudiante y debe
+  poder defendirse sin el apoyo de esta herramienta.
+- Los tiempos de ejecución (entrenamiento y latencia) no se versionan como valores crudos:
+  dependen de la máquina. Los artefactos guardan una cota superior del tiempo de ajuste
+  (`training_seconds_cota`: ≤ 0,02 s para ambos modelos) y la puerta de latencia se verifica en
+  cada ejecución, con su resultado en `decision.checks.latency`.
