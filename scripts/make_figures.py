@@ -12,7 +12,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yaml
+
+from inf8239_u04.data import load_data, temporal_split
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORTS = ROOT / "reports"
@@ -44,7 +45,7 @@ def figura_metricas_grupo() -> None:
         for i, (r, f) in enumerate(zip(tabla["recall"], tabla["fpr"])):
             eje.text(i - ancho / 2, r + 0.02, f"{r:.2f}", ha="center", fontsize=8)
             eje.text(i + ancho / 2, f + 0.02, f"{f:.2f}", ha="center", fontsize=8)
-        eje.set_xticks(x, tabla.index)
+        eje.set_xticks(x, [f"{nombre_grupo}\n(n={int(n)})" for nombre_grupo, n in zip(tabla.index, tabla["count"])])
         eje.set_ylim(0, 1)
         eje.set_ylabel("tasa")
         eje.set_title(f"{nombre} · recall y FPR por grupo")
@@ -57,9 +58,9 @@ def figura_metricas_grupo() -> None:
 
 def figura_recall_interseccional() -> None:
     inter = pd.read_csv(REPORTS / "lab12/logistic/fairness_intersectional.csv", index_col=0)
-    soporte = np.where(inter["count"] < 15, "INSUFICIENTE", "ok")
+    insuficiente = inter["soporte_insuficiente"].astype(str).str.lower().eq("true")
     figura, eje = plt.subplots(figsize=(10, 5))
-    colores = ["#b91c1c" if s == "INSUFICIENTE" else "#0f7c7b" for s in soporte]
+    colores = ["#b91c1c" if s else "#0f7c7b" for s in insuficiente]
     eje.bar(inter.index, inter["recall"], color=colores)
     for i, (c, r) in enumerate(zip(inter["count"], inter["recall"])):
         eje.text(i, r + 0.02, f"n={int(c)}", ha="center", fontsize=8)
@@ -90,21 +91,28 @@ def figura_utilidad_brecha() -> None:
     plt.close(figura)
 
 
-def figura_inventario() -> None:
-    cfg = yaml.safe_load((ROOT / "configs/governance.yml").read_text(encoding="utf-8"))
-    inventario = pd.DataFrame(cfg["inventory"])
-    figura, eje = plt.subplots(figsize=(9, 4.4))
-    colores = ["#0f7c7b" if u else "#94a3b8" for u in inventario["used_as_feature"]]
-    eje.barh(inventario["name"], inventario["retention_days"], color=colores)
-    for y, (d, u) in enumerate(zip(inventario["retention_days"], inventario["used_as_feature"])):
-        eje.text(d + 8, y, f"{d} d" + (" · variable" if u else " · fuera del modelo"), va="center", fontsize=8)
-    eje.set_xlabel("Retención (días)")
-    eje.set_title("Inventario: retención y uso como variable · azul = entra al modelo")
-    eje.set_xlim(0, 1250)
-    eje.invert_yaxis()
-    eje.grid(axis="x", alpha=0.3)
+def figura_tasas_base() -> None:
+    datos = load_data()
+    _, prueba = temporal_split(datos)
+    grupos = ["G1", "G2"]
+    completos = [100.0 * datos.loc[datos.protected_group == g, "target"].mean() for g in grupos]
+    prueba_pct = [100.0 * prueba.loc[prueba.protected_group == g, "target"].mean() for g in grupos]
+    x = np.arange(len(grupos))
+    ancho = 0.35
+    figura, eje = plt.subplots(figsize=(8.5, 4.4))
+    eje.bar(x - ancho / 2, completos, ancho, label=f"datos completos (n={len(datos)})", color="#94a3b8")
+    eje.bar(x + ancho / 2, prueba_pct, ancho, label=f"prueba (corte temporal, n={len(prueba)})", color="#0f7c7b")
+    for i, (completo, parcial) in enumerate(zip(completos, prueba_pct)):
+        eje.text(i - ancho / 2, completo + 1, f"{completo:.1f} %", ha="center", fontsize=9)
+        eje.text(i + ancho / 2, parcial + 1, f"{parcial:.1f} %", ha="center", fontsize=9)
+    eje.set_xticks(x, grupos)
+    eje.set_ylabel("tasa base de positivos (%)")
+    eje.set_title("Tasa base de positivos por grupo (prevalencia del target)")
+    eje.set_ylim(0, 100)
+    eje.legend(fontsize=9)
+    eje.grid(axis="y", alpha=0.25)
     figura.tight_layout()
-    figura.savefig(REPORTS / "lab13/inventario_retencion.png", dpi=170, bbox_inches="tight")
+    figura.savefig(REPORTS / "lab12/tasas_base_positivos.png", dpi=170, bbox_inches="tight")
     plt.close(figura)
 
 
@@ -135,7 +143,7 @@ def figura_puertas() -> None:
                  color="#15803d" if v else "#b91c1c")
     eje.set_xlim(0, 1.35)
     eje.set_xticks([])
-    eje.set_title("Puertas de calidad del despliegue · verde = correcta, rojo = falla")
+    eje.set_title(f"Puertas de calidad del despliegue · estado {decision['decision']['status']}")
     eje.invert_yaxis()
     figura.tight_layout()
     figura.savefig(REPORTS / "lab13/puertas_calidad.png", dpi=170, bbox_inches="tight")
@@ -148,7 +156,7 @@ def main() -> None:
         ("lab12/metricas_por_grupo.png", figura_metricas_grupo),
         ("lab12/recall_interseccional.png", figura_recall_interseccional),
         ("lab12/utilidad_vs_brecha.png", figura_utilidad_brecha),
-        ("lab13/inventario_retencion.png", figura_inventario),
+        ("lab12/tasas_base_positivos.png", figura_tasas_base),
         ("lab13/raci_responsables.png", figura_raci),
         ("lab13/puertas_calidad.png", figura_puertas),
     ]
@@ -156,7 +164,7 @@ def main() -> None:
         try:
             funcion()
             print("OK   ", nombre)
-        except Exception as error:  # la figura depende de artefactos que pueden no existir
+        except (OSError, KeyError, ValueError, TypeError, AttributeError) as error:
             print("FALTA", nombre, "->", type(error).__name__, error)
 
 

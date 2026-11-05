@@ -16,7 +16,7 @@
     "fpr": 0.16826923076923078
   },
   "resources": {
-    "training_seconds": 0.012833418999889545,
-    "model_kb": 7.9013671875
+    "training_seconds_cota": 0.02,
+    "model_kb": 7.9
   }
 }
