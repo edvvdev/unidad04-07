@@ -3,28 +3,35 @@ priority_harm: 'Falso negativo: que un caso con incidente probable no llegue a l
   segundo lugar, el falso positivo que desplaza capacidad de campo hacia casos sin riesgo.'
 primary_metric: 'Brecha de recall (TPR) entre grupos, junto al recall absoluto del grupo con peor desempeño.
   El recall global 0.7174 no basta: en el grupo G1 el recall es 0.653 frente a 0.791 en G2.'
-tolerance: Brecha de recall entre grupos <= 0.10 y recall del grupo con peor desempeño >= 0.70. Si la
-  brecha supera 0.15 o el recall del peor grupo cae por debajo de 0.60, la recomendacion pasa a REVIEW
-  y se detiene la priorizacion automatica hasta nueva auditoria.
+tolerance: 'Decision documentada: LIMITAR — no hay despliegue autonomo; se autoriza un piloto en modo
+  REVIEW con revision humana obligatoria y el baseline sin modelo como camino operativo seguro. Estado
+  del pipeline: REVIEW — fallan tres puertas: worst_group_recall (0,6531 < 0,70), recall_gap_pilot
+  (0,1376 > 0,10) e intersectional_support (8 < 15). Escalamiento a STOP: si la brecha de recall supera
+  0,15 o el recall del peor grupo baja de 0,60, el sistema se retira al baseline sin modelo.'
 evidence: 'reports/lab12/logistic/fairness_by_group.csv: G1 n=101 con accuracy 0.703, selection_rate 0.446,
   recall 0.653 y fpr 0.250; G2 n=59 con accuracy 0.746, selection_rate 0.678, recall 0.791 y fpr 0.375.
   reports/lab12/logistic/global_metrics.json: accuracy 0.7188, recall 0.7174, precision 0.7765, fpr 0.2794;
-  diferencias entre grupos recall 0.1376, fpr 0.1250 y selection_rate 0.2324; entrenamiento 0.0165 s y
+  diferencias entre grupos recall 0.1376, fpr 0.1250 y selection_rate 0.2324; entrenamiento 0.02 s y
   modelo 3.56 KB. reports/lab12/logistic/fairness_intersectional.csv: ocho celdas con conteos entre 8
-  y 35; el soporte es insuficiente en G2 | 45-59 (n=8) y G2 | 18-29 (n=11). Comparacion con el arbol:
-  misma utilidad global (recall 0.7174) pero brechas mayores (recall 0.1813 y fpr 0.1683) y modelo mas
-  grande (7.90 KB frente a 3.56 KB).'
+  y 35; el soporte es insuficiente en tres celdas: G2 | 45-59 (n=8), G2 | 18-29 (n=11) y G2 | 30-44
+  (n=14). Comparacion con el arbol: misma utilidad global (recall 0.7174) pero brechas mayores (recall
+  0.1813 y fpr 0.1683) y modelo mas grande (7.90 KB frente a 3.56 KB).
+  reports/lab13/deployment_decision.json: estado REVIEW con las tres puertas del LAB12 incumplidas.'
 limitation: 'Caso sintetico de 640 registros que no representa personas ni territorios reales. La brecha
-  de recall refleja en parte la tasa base de positivos (G2 63.9 % frente a G1 49.6 %), no una discriminacion
-  causal demostrada: el atributo sensible no entra al modelo, pero zona y banda de edad pueden portar
-  el mismo sesgo de forma indirecta. El soporte interseccional es insuficiente en varias celdas, hay una
-  sola particion temporal y una sola semilla, y no se calcularon intervalos de confianza; ademas, el limite
-  de decision depende del coste real de un falso negativo, que en este caso sintetico no esta cuantificado.'
-recommendation: 'LIMITAR: no desplegar de forma autonoma y no usar el ranking como orden de ejecucion.
-  Autorizar un piloto en modo REVIEW, con revision humana obligatoria de cada caso, el modelo logistico
-  (mejor que el arbol en brechas y costo) como unica configuracion, y una puerta de equidad que mida la
-  brecha de recall por grupo en cada revision trimestral: si supera 0.15 o el recall del peor grupo baja
-  de 0.60, la salida pasa a STOP y el sistema se retira. Antes de cualquier uso con datos reales hay que
-  repetir la auditoria con datos de un periodo posterior, con intervalos de confianza y con el coste del
-  dano cuantificado; y mantener como condicion de retiro que exista capacidad de revision humana y que
-  el caso siga siendo sintetico y documentado.'
+  de recall refleja en parte la tasa base de positivos (G2 63.9 % frente a G1 49.7 % en los datos
+  completos; 72.9 % frente a 48.5 % en la prueba del corte temporal), no una discriminacion causal
+  demostrada: el atributo sensible no entra al modelo, pero zona y banda de edad pueden portar el
+  mismo sesgo de forma indirecta. El soporte interseccional es insuficiente en tres celdas (n=8, n=11
+  y n=14), hay una sola particion temporal y una sola semilla, y no se calcularon intervalos de
+  confianza; ademas, el limite de decision depende del coste real de un falso negativo, que en este caso
+  sintetico no esta cuantificado.'
+recommendation: 'Decision documentada: LIMITAR — no hay despliegue autonomo; se autoriza un piloto en
+  modo REVIEW con revision humana obligatoria y el baseline sin modelo como camino operativo seguro.
+  Estado del pipeline: REVIEW — fallan tres puertas: worst_group_recall (0,6531 < 0,70),
+  recall_gap_pilot (0,1376 > 0,10) e intersectional_support (8 < 15). Escalamiento a STOP: si la brecha
+  de recall supera 0,15 o el recall del peor grupo baja de 0,60, el sistema se retira al baseline sin
+  modelo. La logistica es la unica configuracion (misma utilidad global que el arbol, brechas menores y
+  modelo mas pequeno). Antes de cualquier uso con datos reales hay que repetir la auditoria con datos de
+  un periodo posterior, con intervalos de confianza y con el coste del dano cuantificado; y mantener como
+  condicion de retiro que exista capacidad de revision humana y que el caso siga siendo sintetico y
+  documentado.'

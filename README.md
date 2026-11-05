@@ -11,7 +11,7 @@ dataset no representa personas, zonas ni estadísticas reales de República Domi
 ```bash
 uv python install 3.12
 uv sync --frozen
-uv run pytest -q                                  # 10 passed
+uv run pytest -q                                  # 17 passed
 uv run python scripts/check_environment.py        # dataset_status: valid · 640 filas
 ```
 
@@ -24,7 +24,8 @@ uv run python scripts/check_environment.py        # dataset_status: valid · 640
 .\scripts\run_all.ps1        # Windows
 ```
 
-El script hace: entorno → pruebas → LAB11 → LAB12 (logística y árbol) → notebook ejecutado →
+El script hace: entorno → pruebas → LAB11 → LAB12 (logística y árbol) → **LAB13 (puertas de
+gobernanza y decisión de despliegue)** → **simulacro de incidente** → notebook ejecutado → figuras →
 PDF de síntesis. Instala además Jupyter, `reportlab` y `matplotlib`, que **no** vienen en el grupo
 de desarrollo del proyecto base (`uv sync` solo instala pytest, pytest-cov y ruff).
 
@@ -32,12 +33,13 @@ de desarrollo del proyecto base (`uv sync` solo instala pytest, pytest-cov y ruf
 
 | Elemento | Dónde está |
 |---|---|
-| Notebook ejecutado | `notebooks/01_ejercicio07_impacto_equidad.ipynb` (15 celdas, con salidas) |
+| Notebook ejecutado | `notebooks/01_ejercicio07_impacto_equidad.ipynb` (16 celdas, con salidas, 0 errores) |
 | Artefactos editables | `student_inputs/lab11_impact.yml`, `stakeholders.csv`, `risk_register.csv`, `lab12_decision.yml` |
-| Evidencia generada | `reports/lab11/` (riesgos priorizados, RMF, registro de decisión) y `reports/lab12/` (métricas por grupo, interseccionales, figuras) |
-| Pruebas | `tests/` (`uv run pytest -q` → 10 passed) |
+| Evidencia generada | `reports/lab11/` (riesgos priorizados, RMF, registro de decisión), `reports/lab12/` (métricas por grupo, interseccionales, figuras) y `reports/lab13/` (decisión de despliegue, puertas de calidad) |
+| Decisión de despliegue | `reports/lab13/deployment_decision.json` (generada por `scripts/lab13_governance.py`) |
+| Pruebas | `tests/` (`uv run pytest -q` → 17 passed) |
 | Requisitos | `requirements.txt` y `requirements-dev.txt` (exportados con `uv export`) |
-| PDF de síntesis | `docs/EJERCICIO_07_PDF_SINTESIS.pdf` (6 páginas) |
+| PDF de síntesis | `docs/EJERCICIO_07_PDF_SINTESIS.pdf` (7 páginas) |
 | Declaración de IA | `docs/AI_USE_DECLARATION.md` |
 | Correcciones al base | `CAMBIOS_AL_BASE.md` |
 
@@ -61,22 +63,40 @@ de desarrollo del proyecto base (`uv sync` solo instala pytest, pytest-cov y ruf
 | FPR | 0,2794 | 0,250 | 0,375 | 0,1250 |
 | Tasa de selección | 0,5313 | 0,446 | 0,678 | 0,2324 |
 
-Soporte interseccional: ocho celdas con n entre 8 y 35; **soporte insuficiente** en `G2 | 45-59`
-(n=8) y `G2 | 18-29` (n=11), cuyas cifras no se interpretan como evidencia de brecha.
+Soporte interseccional: ocho celdas con n entre 8 y 35; **soporte insuficiente en 3 celdas** —
+`G2 | 45-59` (n=8), `G2 | 18-29` (n=11) y `G2 | 30-44` (n=14)—, cuyas cifras no se interpretan como
+evidencia de brecha. La marca viaja calculada por código en la columna `soporte_insuficiente` de
+`reports/lab12/*/fairness_intersectional.csv` (umbral 15, el mismo de la puerta de despliegue).
+
+Tasa base de positivos (calculada desde `data/territorial_risk_synthetic.csv` con el corte temporal
+del repo): G1 **49,7 %** frente a G2 **63,9 %** en los datos completos, y G1 **48,5 %** frente a G2
+**72,9 %** en la prueba de 160 registros.
 
 **Comparación de alternativas**: la logística y el árbol obtienen la **misma utilidad global**
 (recall 0,7174), pero la logística tiene **brechas menores** (recall 0,1376 frente a 0,1813; FPR
 0,1250 frente a 0,1683) y ocupa **menos de la mitad** (3,56 KB frente a 7,90 KB).
 
-## Decisión: LIMITAR
+## Decisión documentada: LIMITAR
 
-No desplegar de forma autónoma ni usar el ranking como orden de ejecución. Piloto en modo **REVIEW**
-con revisión humana obligatoria, la logística como única configuración y una puerta de equidad
-trimestral: si la brecha de recall supera 0,15 o el recall del peor grupo baja de 0,60, la salida pasa
-a **STOP** y el sistema se retira. La brecha observada **no prueba discriminación causal** (el
-atributo sensible no entra al modelo y parte de la diferencia es la tasa base de positivos: G2 63,9 %
-frente a G1 49,6 %), pero tampoco puede descartarse: zona y banda de edad pueden portar el mismo
-sesgo de forma indirecta.
+No hay despliegue autónomo; se autoriza un piloto en modo **REVIEW** con revisión humana obligatoria
+y el baseline sin modelo como camino operativo seguro.
+
+## Estado del pipeline: REVIEW
+
+Fallan tres puertas: `worst_group_recall` (0,6531 < 0,70), `recall_gap_pilot` (0,1376 > 0,10) e
+`intersectional_support` (8 < 15). Las ocho puertas evaluadas y su resultado están en
+`reports/lab13/deployment_decision.json` y en la figura `reports/lab13/puertas_calidad.png`.
+
+## Escalamiento a STOP
+
+Si la brecha de recall supera 0,15 o el recall del peor grupo baja de 0,60, el sistema se retira al
+baseline sin modelo. Los dos umbrales están declarados en `configs/governance.yml`
+(`stop_recall_gap`, `stop_worst_group_recall`) y los evalúa `deployment_decision`; con la evidencia
+actual no se dispara ninguno, porque el estado es REVIEW, no STOP.
+
+La brecha observada **no prueba discriminación causal** (el atributo sensible no entra al modelo y
+parte de la diferencia es la tasa base de positivos: G2 63,9 % frente a G1 49,7 %), pero tampoco puede
+descartarse: zona y banda de edad pueden portar el mismo sesgo de forma indirecta.
 
 ## Capas que no se confunden
 
@@ -90,5 +110,5 @@ sesgo de forma indirecta.
 
 La auditoría no convierte una métrica en una declaración de justicia: la evidencia es de un caso
 sintético, con una sola partición temporal y una sola semilla, sin intervalos de confianza, y con
-soporte insuficiente en varias celdas interseccionales. La decisión se apoya en el daño priorizado
+soporte insuficiente en tres celdas interseccionales. La decisión se apoya en el daño priorizado
 (falso negativo) y en la evidencia de costo, no en la métrica más vistosa.
