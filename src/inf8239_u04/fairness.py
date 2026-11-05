@@ -1,5 +1,11 @@
 import pandas as pd
-from fairlearn.metrics import MetricFrame, count, false_positive_rate, selection_rate, true_positive_rate
+from fairlearn.metrics import (
+    MetricFrame,
+    count,
+    false_positive_rate,
+    selection_rate,
+    true_positive_rate,
+)
 from sklearn.metrics import accuracy_score, precision_score
 
 METRICS={"count":count,"accuracy":accuracy_score,"selection_rate":selection_rate,"recall":true_positive_rate,"precision":lambda y,p:precision_score(y,p,zero_division=0),"fpr":false_positive_rate}
@@ -14,3 +20,8 @@ def intersectional(df):
 def gap(by_group, metric):
     values=pd.to_numeric(by_group[metric],errors="coerce").dropna()
     return float(values.max()-values.min()) if len(values) else 0.0
+
+def soporte_insuficiente(inter, minimo=15):
+    tabla=inter.copy()
+    tabla["soporte_insuficiente"]=pd.to_numeric(tabla["count"],errors="coerce")<minimo
+    return tabla

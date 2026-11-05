@@ -6,9 +6,20 @@ prohibited_uses:
   - emergency declaration
 sensitive_features: [protected_group, age_band]
 direct_identifiers: [name, document_number, email, phone]
+
+# Puertas de calidad. Las cinco primeras son las del proyecto base; las tres siguientes
+# traducen la tolerancia acordada en el LAB12 (student_inputs/lab12_decision.yml) y hacen que
+# la decision del sistema no sea GO mientras la auditoria no se repita con evidencia nueva.
+# Los dos umbrales stop_* son de escalamiento: si se incumplen, el estado pasa a STOP y el
+# sistema se retira al baseline sin modelo (cola manual por severidad reportada).
 gates:
   min_recall: 0.68
   max_recall_gap: 0.16
   max_fpr_gap: 0.16
   max_latency_ms: 500
   max_model_kb: 1024
+  min_worst_group_recall: 0.70        # recall del grupo con peor desempeño (tolerancia LAB12)
+  max_recall_gap_pilot: 0.10          # brecha de recall tolerada en modo piloto (LAB12)
+  min_intersectional_support: 15      # observaciones mínimas para interpretar una celda (LAB12)
+  stop_recall_gap: 0.15               # brecha de recall que escala a STOP
+  stop_worst_group_recall: 0.60       # recall del peor grupo que escala a STOP
