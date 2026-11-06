@@ -11,7 +11,7 @@ dataset no representa personas, zonas ni estadísticas reales de República Domi
 ```bash
 uv python install 3.12
 uv sync --frozen
-uv run pytest -q                                  # 17 passed
+uv run pytest -q                                  # 20 passed
 uv run python scripts/check_environment.py        # dataset_status: valid · 640 filas
 ```
 
@@ -25,8 +25,8 @@ uv run python scripts/check_environment.py        # dataset_status: valid · 640
 ```
 
 El script hace: entorno → pruebas → LAB11 → LAB12 (logística y árbol) → **LAB13 (puertas de
-gobernanza y decisión de despliegue)** → **simulacro de incidente** → notebook ejecutado → figuras →
-PDF de síntesis. Instala además Jupyter, `reportlab` y `matplotlib`, que **no** vienen en el grupo
+gobernanza y decisión de despliegue)** → **simulacro de incidente** → **cifras del dataset** →
+notebook ejecutado → figuras → PDF de síntesis. Instala además Jupyter, `reportlab` y `matplotlib`, que **no** vienen en el grupo
 de desarrollo del proyecto base (`uv sync` solo instala pytest, pytest-cov y ruff).
 
 ## Entrega del Ejercicio 07
@@ -37,7 +37,8 @@ de desarrollo del proyecto base (`uv sync` solo instala pytest, pytest-cov y ruf
 | Artefactos editables | `student_inputs/lab11_impact.yml`, `stakeholders.csv`, `risk_register.csv`, `lab12_decision.yml` |
 | Evidencia generada | `reports/lab11/` (riesgos priorizados, RMF, registro de decisión), `reports/lab12/` (métricas por grupo, interseccionales, figuras) y `reports/lab13/` (decisión de despliegue, puertas de calidad) |
 | Decisión de despliegue | `reports/lab13/deployment_decision.json` (generada por `scripts/lab13_governance.py`) |
-| Pruebas | `tests/` (`uv run pytest -q` → 17 passed) |
+| Cifras del dataset | `reports/dataset_stats.json` (generada por `scripts/dataset_stats.py`): las tasas y los recuentos de la Dataset Card y del README **se calculan**, no están escritos a mano |
+| Pruebas | `tests/` (`uv run pytest -q` → 20 passed) |
 | Requisitos | `requirements.txt` y `requirements-dev.txt` (exportados con `uv export`) |
 | PDF de síntesis | `docs/EJERCICIO_07_PDF_SINTESIS.pdf` (7 páginas) |
 | Declaración de IA | `docs/AI_USE_DECLARATION.md` |
@@ -68,9 +69,12 @@ Soporte interseccional: ocho celdas con n entre 8 y 35; **soporte insuficiente e
 evidencia de brecha. La marca viaja calculada por código en la columna `soporte_insuficiente` de
 `reports/lab12/*/fairness_intersectional.csv` (umbral 15, el mismo de la puerta de despliegue).
 
+<!-- stats:inicio rates -->
 Tasa base de positivos (calculada desde `data/territorial_risk_synthetic.csv` con el corte temporal
 del repo): G1 **49,7 %** frente a G2 **63,9 %** en los datos completos, y G1 **48,5 %** frente a G2
 **72,9 %** en la prueba de 160 registros.
+
+<!-- stats:fin rates -->
 
 **Comparación de alternativas**: la logística y el árbol obtienen la **misma utilidad global**
 (recall 0,7174), pero la logística tiene **brechas menores** (recall 0,1376 frente a 0,1813; FPR
@@ -95,7 +99,7 @@ baseline sin modelo. Los dos umbrales están declarados en `configs/governance.y
 actual no se dispara ninguno, porque el estado es REVIEW, no STOP.
 
 La brecha observada **no prueba discriminación causal** (el atributo sensible no entra al modelo y
-parte de la diferencia es la tasa base de positivos: G2 63,9 % frente a G1 49,7 %), pero tampoco puede
+parte de la diferencia es la tasa base de positivos: <!-- stats:inicio rates_decision -->G2 63,9 % frente a G1 49,7 %<!-- stats:fin rates_decision -->), pero tampoco puede
 descartarse: zona y banda de edad pueden portar el mismo sesgo de forma indirecta.
 
 ## Capas que no se confunden

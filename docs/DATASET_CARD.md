@@ -41,12 +41,14 @@ directa es rechazada antes de predecir (`src/inf8239_u04/data.py::validate_schem
 
 | Comprobación | Valor |
 |---|---|
+<!-- stats:inicio distribucion -->
 | Target | 353 positivos (55,2 %) · 287 negativos (44,8 %): desbalance moderado, `accuracy` no basta |
 | Grupos | G1 396 · G2 244 |
 | Bandas de edad | 18-29: 148 · 30-44: 163 · 45-59: 150 · 60+: 179 |
 | Zonas | Norte 155 · Oeste 157 · Sur 164 · Este 164 |
-| Tasa de positivos por grupo (datos completos) | G1 49,6 % · **G2 63,9 %** |
-| Tasa de positivos por grupo (prueba, 160 casos) | G1 23,9 % · **G2 72,9 %** |
+| Tasa de positivos por grupo (datos completos) | G1 49,7 % · **G2 63,9 %** |
+| Tasa de positivos por grupo (prueba, 160 casos) | G1 48,5 % · **G2 72,9 %** |
+<!-- stats:fin distribucion -->
 
 La diferencia de prevalencia entre grupos es **el hecho central de la auditoría**: una brecha de recall
 puede reflejar la distinta prevalencia del target y no una decisión discriminatoria del modelo.

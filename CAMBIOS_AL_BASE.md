@@ -113,13 +113,19 @@ solapamiento. El PDF pasa de 6 a 7 páginas al añadir la sección de puertas.
 ## 11. D6 · Marcadores `REPLACE` de las plantillas del LAB13
 
 `docs/MODEL_CARD.md` y `docs/RUNBOOK.md` son las plantillas del LAB13 (Ejercicio 08) que trae el base
-y **no aplican** a este ejercicio. Se añade al inicio de cada una una línea que lo dice
-explícitamente y se apunta a la documentación de entrega real del Ejercicio 07; no se inventa
-contenido. Los únicos `REPLACE` que quedan en el repositorio son los de esas dos plantillas.
+y **no aplican** a este ejercicio: son 13 marcadores `REPLACE` sin resolver en dos archivos que no
+forman parte de la entrega del Ejercicio 07.
+
+**Corrección definitiva:** los dos archivos **se eliminan del repositorio**. La documentación de
+entrega del Ejercicio 07 es `docs/DATASET_CARD.md`, `docs/AI_USE_DECLARATION.md` y
+`docs/EJERCICIO_07_PDF_SINTESIS.pdf` (más `README.md` y `CAMBIOS_AL_BASE.md`); las plantillas del
+LAB13 viven en el repositorio del Ejercicio 08 (`unidad04-08`), donde sí se rellenan. No se inventa
+contenido ni se deja un archivo a medias. Como consecuencia, ya no queda ningún marcador `REPLACE`
+en el repositorio.
 
 ## 12. D7 · `docs/AI_USE_DECLARATION.md`
 
-Se marcan las casillas de verificación con el comando y el **resultado real** (17 pruebas, ruff en
+Se marcan las casillas de verificación con el comando y el **resultado real** (20 pruebas, ruff en
 verde, `dataset_status: valid`, 9 riesgos, 3 celdas con soporte insuficiente, estado REVIEW con las
 tres puertas, 7 figuras, contraste de cifras y comprobación del PDF). Se corrigen las afirmaciones
 que la evidencia contradecía: ya no se afirma que no se tocara `governance.py` (ni `fairness.py` ni
@@ -168,11 +174,13 @@ concretas en lugar de `Exception`. Resultado: `All checks passed!`.
 
 ## 16. Pruebas
 
-`tests/` pasa de 10 a 17 pruebas: se cubren el estado GO con todas las puertas, el estado REVIEW con
+`tests/` pasa de 10 a 20 pruebas: se cubren el estado GO con todas las puertas, el estado REVIEW con
 las tres puertas del LAB12 fallidas, el escalamiento a STOP por brecha de recall y por recall del
 peor grupo, el comportamiento con solo las puertas base, la marca de soporte insuficiente
 (3 celdas) y los nuevos campos del pipeline (`worst_group`, `worst_group_recall`,
-`min_intersectional_support`).
+`min_intersectional_support`). `tests/test_dataset_stats.py` añade tres pruebas que comprueban que
+`reports/dataset_stats.json` coincide con los datos, que los bloques calculados de la Dataset Card y
+del README están sincronizados y que no queda ninguna tasa desfasada del ejercicio anterior.
 
 ## 17. Notebook
 
@@ -182,10 +190,24 @@ de soporte insuficiente por código (misma función y mismo umbral que los scrip
 tiempos de entrenamiento y la conclusión (tasa base 49,7 %, tres celdas con soporte insuficiente y la
 decisión unificada LIMITAR / REVIEW / STOP).
 
+## 18. D8 · Las tasas de la Dataset Card se calculan desde los datos
+
+**Antes:** `docs/DATASET_CARD.md` afirmaba «G1 49,6 %» en los datos completos y «G1 23,9 %» en la
+prueba temporal. Las dos cifras eran literales escritos a mano y estaban desfasadas: el README, el
+registro de decisión y el PDF ya daban las correctas (49,7 % y 48,5 %).
+
+**Corrección:** `scripts/dataset_stats.py` calcula las cifras del dataset desde
+`data/territorial_risk_synthetic.csv` con el corte temporal del repositorio y las escribe en
+`reports/dataset_stats.json`. Los bloques marcados de `docs/DATASET_CARD.md` («Distribución y
+soporte») y de `README.md` (tasas base de positivos) se generan desde ese cálculo, de modo que ya no
+hay ninguna tasa escrita a mano. `scripts/run_all.sh` ejecuta el script en un paso propio y
+`tests/test_dataset_stats.py` falla en `pytest -q` si los bloques se desincronizan o si vuelve a
+aparecer alguna tasa del ejercicio anterior.
+
 ## Verificación
 
 ```bash
-uv sync --frozen && uv run pytest -q      # 17 passed
+uv sync --frozen && uv run pytest -q      # 20 passed
 uv run ruff check .                        # All checks passed!
 uv run python scripts/check_environment.py # dataset_status: valid · 640 filas
 uv run python scripts/lab11_impact.py
@@ -194,6 +216,7 @@ uv run python scripts/lab12_audit.py --model tree
 uv run python scripts/validate_lab12_decision.py
 uv run python scripts/lab13_governance.py   # status REVIEW · 3 puertas fallidas
 uv run python scripts/simulate_incident.py
+uv run python scripts/dataset_stats.py       # cifras del dataset y bloques de la documentación
 uv run python scripts/make_figures.py       # 7 figuras OK
 bash scripts/run_all.sh                     # flujo completo sin errores
 ```

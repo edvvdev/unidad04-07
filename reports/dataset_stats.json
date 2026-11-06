@@ -1,0 +1,53 @@
+{
+  "ruta": "data/territorial_risk_synthetic.csv",
+  "filas": 640,
+  "columnas": 9,
+  "corte_temporal": {
+    "entrenamiento_hasta": "2026-09-24",
+    "prueba_desde": "2026-09-25",
+    "filas_entrenamiento": 480,
+    "filas_prueba": 160
+  },
+  "objetivo": {
+    "positivos": 353,
+    "negativos": 287,
+    "tasa_positivos": 0.5515625,
+    "tasa_negativos": 0.44843750000000004
+  },
+  "grupos": {
+    "G1": {
+      "n": 396,
+      "positivos": 197,
+      "tasa": 0.49747474747474746
+    },
+    "G2": {
+      "n": 244,
+      "positivos": 156,
+      "tasa": 0.639344262295082
+    }
+  },
+  "grupos_prueba": {
+    "G1": {
+      "n": 101,
+      "positivos": 49,
+      "tasa": 0.48514851485148514
+    },
+    "G2": {
+      "n": 59,
+      "positivos": 43,
+      "tasa": 0.7288135593220338
+    }
+  },
+  "bandas_edad": {
+    "18-29": 148,
+    "30-44": 163,
+    "45-59": 150,
+    "60+": 179
+  },
+  "zonas": {
+    "Norte": 155,
+    "Oeste": 157,
+    "Sur": 164,
+    "Este": 164
+  }
+}

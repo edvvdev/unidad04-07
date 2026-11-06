@@ -47,7 +47,7 @@ referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`
 ## Verificaciones ejecutadas (2026-11-05, con el resultado real)
 
 - [x] `uv sync --frozen` → `Checked 54 packages` (entorno reproducible con el lock del base).
-- [x] `uv run pytest -q` → **17 passed**.
+- [x] `uv run pytest -q` → **20 passed**.
 - [x] `uv run ruff check .` → **All checks passed!**
 - [x] `uv run python scripts/check_environment.py` → `{'python_project': 'ok', 'dataset_status': 'valid', 'rows': 640, 'columns': 9}`.
 - [x] `uv run python scripts/lab11_impact.py` → `reports/lab11/risk_register_scored.csv` con 9 riesgos
@@ -59,12 +59,15 @@ referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`
 - [x] `uv run python scripts/lab13_governance.py` → `{'status': 'REVIEW', …, 'failed':
       ['worst_group_recall', 'recall_gap_pilot', 'intersectional_support'], 'escalation_triggered': []}`
       y `reports/lab13/deployment_decision.json` versionado.
+- [x] `uv run python scripts/dataset_stats.py` → `reports/dataset_stats.json` y los bloques
+      calculados de `docs/DATASET_CARD.md` y `README.md` (tasas base de positivos de los datos
+      completos y de la prueba temporal).
 - [x] `uv run python scripts/make_figures.py` → 7 figuras `OK` (incluye
       `reports/lab13/puertas_calidad.png`).
 - [x] `uv run pytest -q tests/test_impact.py tests/test_privacy.py tests/test_fairness.py tests/test_model.py`
       → **7 passed**.
 - [x] `bash scripts/run_all.sh` → flujo completo sin errores (entorno → pruebas → LAB11 → LAB12 →
-      LAB13 → incidente → notebook → figuras → PDF).
+      LAB13 → incidente → cifras del dataset → notebook → figuras → PDF).
 - [x] Contraste de cifras entre el informe y los CSV/JSON: recall 0,7174, brecha de recall 0,1376,
       FPR 0,1250, recall del peor grupo 0,6531 (G1), soporte interseccional mínimo 8 y tasas base de
       positivos 48,5 % / 72,9 % (prueba) y 49,7 % / 63,9 % (datos completos) coinciden con
@@ -82,10 +85,10 @@ referencia, cifra o evidencia fue inventada: todas provienen de `reports/lab11/`
 | El script de LAB11 ya no sobrescribe `DECISION_RECORD.md` si el estudiante ya lo redactó | El base lo regeneraba con la plantilla de marcadores sin resolver en cada ejecución y borraba el trabajo del estudiante | Al reejecutar el script, el registro se conserva |
 | La decisión decía cuatro cosas distintas (LIMITAR, REVIEW, STOP y GO) | Las puertas del LAB12 no existían en `configs/governance.yml`, así que el evaluador devolvía GO mientras la documentación afirmaba lo contrario | `configs/governance.yml` declara las tres puertas y los dos umbrales de escalamiento; `deployment_decision` los evalúa y devuelve REVIEW con las tres puertas fallidas |
 | `reports/lab13/deployment_decision.json` no existía aunque el riesgo R07 lo cita como evidencia | El flujo no ejecutaba `scripts/lab13_governance.py` | `scripts/run_all.sh` lo ejecuta y el JSON queda versionado |
-| El PDF afirmaba «G1 23,9 %» y «datos completos: 49,6 %» | Literales escritos a mano, desfasados respecto de los datos | Las tasas se calculan desde `data/territorial_risk_synthetic.csv` con el corte temporal del repo: 48,5 % / 72,9 % en la prueba y 49,7 % / 63,9 % en los datos completos |
+| El PDF afirmaba «G1 23,9 %» y «datos completos: 49,6 %», y la Dataset Card arrastraba las mismas dos cifras | Literales escritos a mano, desfasados respecto de los datos | Las tasas se calculan desde `data/territorial_risk_synthetic.csv` con el corte temporal del repo: 48,5 % / 72,9 % en la prueba y 49,7 % / 63,9 % en los datos completos; en la Dataset Card y en el README las cifras van en bloques generados por `scripts/dataset_stats.py` y `tests/test_dataset_stats.py` falla si se desincronizan |
 | Las celdas con soporte insuficiente se contaban de dos formas (2 frente a 3) | El soporte se marcaba a mano en el PDF y sin marca en los CSV | `fairness_intersectional.csv` lleva la columna `soporte_insuficiente` calculada por código (umbral 15) y todos los artefactos cuentan 3 celdas (n=8, n=11 y n=14) |
 | Dos tablas del PDF (interesados y riesgos) se solapaban | Celdas de texto plano sin ajuste de línea en columnas estrechas | Las tablas se reconstruyen con párrafos con `wordWrap` y anchos de columna; la página 1 renderizada a PNG no muestra solapamiento |
-| `docs/MODEL_CARD.md` y `docs/RUNBOOK.md` con marcadores sin resolver | Son las plantillas del LAB13 (Ejercicio 08) que trae el base y no aplican aquí | Cada una empieza con una línea que lo dice; el contenido no se inventa |
+| `docs/MODEL_CARD.md` y `docs/RUNBOOK.md` con marcadores sin resolver | Son las plantillas del LAB13 (Ejercicio 08) que trae el base y no aplican aquí | **Se eliminan del repositorio**: no son parte de la entrega del Ejercicio 07 y su contenido no se inventa. La documentación de entrega es `docs/DATASET_CARD.md`, `docs/AI_USE_DECLARATION.md` y `docs/EJERCICIO_07_PDF_SINTESIS.pdf` |
 | `uv run ruff check .` señalaba 29 hallazgos heredados | El base no fijó `[tool.ruff]` en `pyproject.toml` (que no se toca) | Hallazgos corregidos en el código (orden de imports, imports sin uso, expresión inútil del notebook, `except` ciego) |
 
 No se modificaron `pyproject.toml` ni `uv.lock` del proyecto base. Se modificaron
